@@ -123,6 +123,60 @@ string str_reverse(const char *src)
     return str;
 }
 
+/***************************************************************
+** Kayven <hilyhoo@gmail.com>的高效代码
+***************************************************************/
+unsigned long f(unsigned long n){
+    unsigned long fn = 0, ntemp = n;
+    unsigned long step;
+    for (step = 1; ntemp > 0; step *= 10, ntemp /= 10){
+        fn += (((ntemp - 1) / 10) + 1) * step;
+        if ((ntemp % 10) == 1){
+            fn -= step - (n % step + 1);
+        }
+    }
+    return fn;
+}
+
+unsigned long get_max_fn_equal_n(unsigned long upper_bound){
+    unsigned long n = 1, fn = 0;
+    unsigned long max = 1;
+    while (n <= upper_bound) {
+        fn = f(n);
+        if (fn == n){
+            max = n;
+            printf("%10lu\t", n++);
+        }
+        /**
+         *  因为 fn < n，而最大的long为10位数字，因而n增加一，fn增加不超过10
+         *  所以增加的步长为（n-fn)/10 + 1
+         */
+        else if (fn < n)
+            n += (n - fn) / 10 + 1;
+        /**
+         *  因为 fn > n, 在n到fn中间的n的取值，其对应的f(n+x) > f(n) = n + f(n) - n > n + x,
+         *  所以可以直接增加到 n = fn
+         */
+        else
+            n = fn;
+    }
+    return max;
+}
+
+// 返回 1-N 的“1”的个数简洁算法
+unsigned int count_1s(unsigned int n)
+{
+    unsigned int step, count, remain = n;
+    for (count = 0, step = 1; remain > 0; step *= 10, remain /= 10) {
+        count += ((remain - 1) / 10 + 1) * step;
+        if (remain % 10 == 1) {
+            count -= step - (n % step + 1);
+        }
+    }
+    return count;
+}
+
+// 0 - 4000000000 中 1s count = n 的数
 void count_ones()
 {
     unsigned int count = 0;
@@ -155,18 +209,4 @@ string char_counts_format(const char *src)
         str += buf;
     }
     return str;
-}
-
-int main()
-{
-    unsigned int count = 0;
-    for (unsigned int i = 1; i < 50000; i++) {
-        register unsigned int j = i;
-        while (j > 0) {
-            count = j % 10 == 1 ? count + 1 : count;
-            j = j / 10;
-        }
-    }
-    cout << count << endl;
-    return 0;
 }
