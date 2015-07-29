@@ -107,7 +107,7 @@ string manancher(string s)
             ++j;
         }
         raid[i] = j;
-        for (k = 1; k < j && raid[i - k] != raid[i] - k; ++k) {
+        for (k = 1; k <= j && raid[i - k] != raid[i] - k; ++k) {
             raid[i + k] = min(raid[i - k], raid[i] - k);
             i += k;
             j = max(j - k, 0);
