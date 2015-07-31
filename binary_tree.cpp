@@ -2,6 +2,7 @@
  *  1.二叉树序列化和反序列化
  *  2.判断二叉树是否为二叉搜索树
  *  3.找出二叉树中的最大二叉搜索树
+ *  4.二叉搜索树反序列化
  */
 #include <cstdio>
 #include <cstdlib>
@@ -82,6 +83,49 @@ pair<int, bool> biggestBSTree(node *root, int low = INT_MIN, int high = INT_MAX)
     return make_pair(left.first + right.first + 1, true);
 }
 
+/**
+ *  二叉搜索树序列和反序列化,可以像普通二叉树一样，也可以不加#号间断
+ *  没有#号间隔 递归 前序 版本
+ */
+
+void bstreeSerialize(FILE *fp, node *root)
+{
+    if (root == NULL) {
+        return;
+    }
+    fprintf(fp, "%d ", root->val);
+    bstreeSerialize(fp, root->left);
+    bstreeSerialize(fp, root->right);
+}
+
+node* bstreeDeserialize(FILE *fp, int &val, int low, int high)
+{
+    if (val > low && val < high) {
+        node *root = new node(val);
+        if (feof(fp)) {
+            return NULL;
+        }
+        int nval = val;
+        fscanf(fp, "%d", &val);
+        root->left = bstreeDeserialize(fp, val, low, nval);
+        root->right = bstreeDeserialize(fp, val, nval, high);
+        return root;
+    }
+    return NULL;
+}
+
+// 重载
+node* bstreeDeserialize(FILE *fp)
+{
+    if (fp == NULL || feof(fp)) {
+        return NULL;
+    }
+    int val = 0;
+    fscanf(fp, "%d", &val);
+    return bstreeDeserialize(fp, val, INT_MIN, INT_MAX);
+}
+
+
 // codes below is for test
 void freeTree(node *root)
 {
@@ -97,10 +141,10 @@ int main()
 {
     FILE *fp = fopen("fin.txt", "r+");
     FILE *wp = fopen("out.txt", "w");
-    node *it = treeDeserialize(fp);
-    printf("%s\n", isBSTree(it) ? "true" : "false");
-    printf("%d\n", (biggestBSTree(it)).first);
-    treeSerialize(it, wp);
+    node *it = bstreeDeserialize(fp);
+    //printf("%s\n", isBSTree(it) ? "true" : "false");
+    //printf("%d\n", (biggestBSTree(it)).first);
+    bstreeSerialize(wp, it);
     freeTree(it);
     fclose(fp);
     fclose(fp);
