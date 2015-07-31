@@ -90,7 +90,7 @@ void freeTree(node *root)
     }
     freeTree(root->left);
     freeTree(root->right);
-    free(root);
+    delete root;
 }
 
 int main()
