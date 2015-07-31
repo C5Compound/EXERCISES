@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <queue>
 #include <vector>
 #include <ctime>
 using namespace std;
@@ -23,7 +24,8 @@ public:
     void mazeDfs(int, int);
     void printMaze();
     void Solve();
-    bool solve(int, int);
+    bool trackBack(int, int);
+    void bfsSolve();
 };
 
 Maze::Maze(int _row, int _col) : row(2 *_row + 1), col(2 * _col + 1)
@@ -87,16 +89,16 @@ void Maze::printMaze()
 {
     for (int j = 0; j < row; j++) {
         for (int i = 0; i < col; i++) {
-            printf("%s", (maze[j][i] == 0 ? "  " : (maze[j][i] == 1 ? "＋" : "->")));
+            printf("%s", (maze[j][i] == 0 ? "  " : (maze[j][i] == 1 ? "＋" : "Ｏ")));
         }
         printf("\n");
     }
 }
 
-// 回溯
-bool Maze::solve(int x, int y)
+// 回溯DFS
+bool Maze::trackBack(int x, int y)
 {
-    if (x == col - 1 && y == row - 1) {
+    if (x == col - 2 && y == row - 2) {
         return true;
     }
     const static int direc[4][2] = {{0, 1}, {1, 0}, {-1, 0}, {0, -1}};
@@ -112,7 +114,7 @@ bool Maze::solve(int x, int y)
             // 中间没有墙
             if (maze[(ny + y) / 2][(nx + x) / 2] == 0) {
                 visit[ny][nx] = true;
-                if (solve(nx, ny)) {
+                if (trackBack(nx, ny)) {
                     return true;
                 }
                 visit[ny][nx] = false;
@@ -120,6 +122,36 @@ bool Maze::solve(int x, int y)
         }
     }
     return false;
+}
+
+// BFS
+void Maze::bfsSolve()
+{
+    const static int direc[4][2] = {{0, 1}, {1, 0}, {-1, 0}, {0, -1}};
+    queue<pair<int, int>> q;
+    q.push(make_pair(1, 1));
+    while (!q.empty()) {
+        pair<int, int> top = q.front();
+        q.pop();
+        for (int i = 0; i < 4; ++i) {
+
+            int nx = top.first + 2 * direc[i][0];
+            int ny = top.second + 2 * direc[i][1];
+
+            if (nx > 0 && nx < col - 1 && 
+                ny > 0 && ny < row - 1 && 
+                !visit[ny][nx]) {
+                // 中间没有墙
+                if (maze[(ny + top.second) / 2][(nx + top.first) / 2] == 0) {
+                    visit[ny][nx] = true;
+                    if (nx == col - 2 && ny == row - 2) {
+                        return;
+                    }
+                    q.push(make_pair(nx, ny));
+                }
+            }
+        }
+    }
 }
 
 void Maze::Solve() 
@@ -131,7 +163,7 @@ void Maze::Solve()
         }
     }
     visit[1][1] = true;
-    solve(1, 1);
+    trackBack(1, 1);
     for (int j = 0; j < row; j++) {
         for (int i = 0; i < col; i++) {
             if(visit[j][i] == true) {
@@ -144,9 +176,8 @@ void Maze::Solve()
 
 int main()
 {
-    Maze maze(15, 15);
+    Maze maze(12, 12);
     maze.genMaze();
-    maze.printMaze();
     maze.Solve();
     return 0;
 }
