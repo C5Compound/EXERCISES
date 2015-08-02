@@ -17,6 +17,7 @@
 #include <string>
 #include <cstdio>
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
 string mostly_show_str(const char *src)
@@ -246,10 +247,8 @@ string lnrs(const char *s, int len)
 */
 string lnrsDp(const char *s, int len)
 {
-    // 如果串s长度超过256，把char改为int
-    // 循环初始化即可
-    char visit[256];
-    memset(visit, -1, 256 * sizeof(char));
+    int visit[256];
+    fill_n(visit, 256, -1);
     int cnt = 0, index, len_max = 0;
     for (int i = 0; i < len; ++i) {
         if (visit[s[i]] == -1) {
