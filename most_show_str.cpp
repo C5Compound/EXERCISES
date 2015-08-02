@@ -7,6 +7,7 @@
 *  5.求 1 - 4,000,000,000 的所有数字中含有字符‘1’的总数等于其数值的数
 *  6.转换字符格式为原来字符串里的字符+该字符连续出现的个数
 *  例如“1233422222”转换为“1121324125”
+*  7.最长无重复子序列(自身不能有重复的字母)
 */
 
 #include <cstdlib>
@@ -208,5 +209,66 @@ string char_counts_format(const char *src)
         sprintf(buf, "%d", count);
         str += buf;
     }
+    return str;
+}
+
+// 最长无重复子序列
+// 时间复杂度为O(n^2)
+string lnrs(const char *s, int len)
+{
+    // 初始化为未访问过
+    char visit[256];
+    int index, cnt, len_max = 0;
+    for (int i = 0; i < len; ++i) {
+        memset(visit, 0, 256 * sizeof(char));
+        cnt = 0;
+        for (int j = i; j < len; ++j) {
+            if (visit[s[j]] == 0) {
+                visit[s[j]] = 1;
+                ++cnt;
+            } else  break;
+        }
+        if (cnt > len_max) {
+            len_max = cnt;
+            index = i;
+        }
+    }
+    string str;
+    str.assign(s + index, len_max);
+    return str;
+}
+/**
+// 时间复杂度为O(n)
+// visit数组中-1表示之前为出现过
+// 其他值表示上一次出现的索引值
+// 所以到索引以索引i结束的最长不重复串
+// 长度为 上一位置串长 + 1 或者 到上一出现位置的串长
+*/
+string lnrsDp(const char *s, int len)
+{
+    // 如果串s长度超过256，把char改为int
+    // 循环初始化即可
+    char visit[256];
+    memset(visit, -1, 256 * sizeof(char));
+    int cnt = 0, index, len_max = 0;
+    for (int i = 0; i < len; ++i) {
+        if (visit[s[i]] == -1) {
+            visit[s[i]] = i;
+            cnt += 1;
+        } else {
+            if (i - visit[s[i]] > cnt) {
+                cnt += 1;
+            } else {
+                cnt = i - visit[s[i]];
+            }
+            visit[s[i]] = i;
+        }
+        if (cnt > len_max) {
+            len_max = cnt;
+            index = i - cnt + 1;
+        }
+    }
+    string str;
+    str.assign(s + index, len_max);
     return str;
 }
