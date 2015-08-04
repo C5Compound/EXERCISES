@@ -8,6 +8,7 @@
 *  6.转换字符格式为原来字符串里的字符+该字符连续出现的个数
 *  例如“1233422222”转换为“1121324125”
 *  7.最长无重复子序列(自身不能有重复的字母)
+*  8.最长公共子串
 */
 
 #include <cstdlib>
@@ -25,7 +26,7 @@ string mostly_show_str(const char *src)
     assert(src != NULL && *src != '\0');
     size_t max = 0;
     string result;
-    for (size_t i = 1; i <= strlen(src); ++i) {
+    for (size_t i = 1; i <= strlen(src) / 2; ++i) {
         for (size_t j = 0; j < strlen(src) - i; ++j) {
             size_t cnt = 1;
             for (size_t k = j; k + 2 * i <= strlen(src); k += i) {
@@ -45,7 +46,7 @@ string dup_longest_str(const char *src)
 {
     assert(src != NULL && *src != '\0');
     string str;
-    for (size_t i = 1; i <= strlen(src); i++) {
+    for (size_t i = 1; i <= strlen(src) / 2; i++) {
         for (size_t j = 0; j < strlen(src) - i; j++) {
             for (size_t k = j + i; k + i <= strlen(src); k++) {
                 if (memcmp(src + j, src + k, i) == 0) {
@@ -56,7 +57,7 @@ string dup_longest_str(const char *src)
         }
     }
     return str;
-} 
+}
 
 const char* diy_strstr(const char *short_str, const char *long_str)
 {
@@ -270,4 +271,72 @@ string lnrsDp(const char *s, int len)
     string str;
     str.assign(s + index, len_max);
     return str;
+}
+
+/**
+// 最长公共子串长度
+// 注意与最长公共子序列相区别，子序列可以不连续，子串必须连续
+*/
+// 动态规划解法
+int lcSubstr(string a, string b)
+{
+    if (a.empty() || b.empty()) {
+        return 0;
+    }
+    vector<vector<int>> dp(a.size() + 1, vector<int>(b.size() + 1, 0));
+    int max_len = 0;
+    for (int i = 0; i < a.size(); ++i) {
+        for (int j = 0; j < b.size(); ++j) {
+            if (a[i] == b[j]) {
+                dp[i + 1][j + 1] = dp[i][j] + 1;
+                max_len = max(dp[i + 1][j + 1], max_len);
+            }
+        }
+    }
+    return max_len;
+}
+
+// 后缀数组解法
+int strCmp(const void *s1, const void *s2)
+{
+    return strcmp(*(char**)s1, *(char**)s2);
+}
+
+int comlen(const char *s1, const char *s2)
+{
+    int len = 0;
+    while (*s1 && *s2 && *s1++ == *s2++) {
+        ++len;
+    }
+    return len;
+}
+
+int lcSubstr(const char *a, const char *b)
+{
+    if (strlen(a) == 0 || strlen(b) == 0) {
+        return 0;
+    }
+    int lenA = strlen(a), lenB = strlen(b);
+    int lenNew = lenA + lenB + 1;
+    char *apb = new char[lenNew + 1];
+    // 连接字串a与b，中间用\0间隔
+    memcpy(apb, a, lenA * sizeof(char));
+    memcpy(apb + lenA + 1, b, lenB * sizeof(char));
+    apb[lenA] = '\0';
+    apb[lenA + lenB + 1] = '\0';
+    char **suffix = new char*[lenNew];
+    for (int i = 0; i < lenNew; ++i) {
+        suffix[i] = &apb[i];
+    }
+    qsort(suffix, lenNew, sizeof(char*), strCmp);
+    int maxlen = 0;
+    for (int i = 0; i < lenNew - 1; ++i) {
+        // 连续的两个串必须分别来自a和b
+        if ((suffix[i] - &apb[lenA]) * (suffix[i + 1] - &apb[lenA]) < 0) {
+            maxlen = max(maxlen, comlen(suffix[i], suffix[i + 1]));
+        }
+    }
+    delete[] apb;
+    delete[] suffix;
+    return maxlen;
 }
