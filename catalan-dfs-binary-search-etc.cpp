@@ -221,6 +221,24 @@ int searchBigger(vector<int> ls, int k)
 }
 
 /**
+ *  0-1背包
+ *  动态规划
+ */
+int knapsack(vector<pair<int, int>> jewels, int cap)
+{
+    vector<int> dp(cap + 1, 0), tmp(cap + 1, 0);
+    for (int i = 1; i < jewels.size() + 1; ++i) {
+        tmp = dp;
+        for (int j = 1; j < cap + 1; ++j) {
+            if (jewels[i - 1].second <= j) {
+                dp[j] = max(tmp[j], jewels[i - 1].first + tmp[j - jewels[i - 1].second]);
+            }
+        }
+    }
+    return dp[cap];
+}
+
+/**
  *  20个桶，每个桶中有10条鱼，用网从每个桶中抓鱼，每次可以抓住的条数随机，每个桶只能抓一次，问一共抓到180条的排列有多少种
  */
 
