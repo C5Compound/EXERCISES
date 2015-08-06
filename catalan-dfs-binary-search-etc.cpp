@@ -105,7 +105,7 @@ bool str2IpInt(const char *ip, unsigned int &ipInt)
  *  基本二分查找,输出索引,没有则输出-1,迭代
  *  数组按升序排序
  */
-int binarySearch1(vector<int> ls, int k)
+int binarySearch(vector<int> ls, int k)
 {
     if (ls.empty()) {
         return -1;
@@ -125,20 +125,23 @@ int binarySearch1(vector<int> ls, int k)
 }
 
 /**
- *  二分查找k第一次出现的索引,没有则输出-1,迭代
- *  数组按升序排序
- */
+*  二分查找k第一次出现的索引,没有则输出-1,迭代
+*  注意到else情况下right = mid，而mid取的是floor[(left + right)/2]，也就是说，如果left + 1 = right
+*  接下来right = mid = left跳出循环，不会出现死循环的情况
+*  数组按升序排序
+*/
 int searchFirst(vector<int> ls, int k)
 {
     if (ls.empty()) {
         return -1;
     }
-    int left = 0, right = ls.size() - 1, mid; 
+    int left = 0, right = ls.size() - 1, mid;
     while (left < right) {
-        mid = left + ((right - left) >> 2);
+        mid = left + ((right - left) >> 1);
         if (ls[mid] < k) {
             left = mid + 1;
-        } else {
+        }
+        else {
             right = mid;
         }
     }
@@ -146,63 +149,55 @@ int searchFirst(vector<int> ls, int k)
 }
 
 /**
- *  二分查找k最后出现的索引,没有则输出-1,迭代
- *  数组按升序排序
- */
+*  二分查找k最后出现的索引,没有则输出-1,迭代
+*  注意到else情况下left = mid，如果mid取的是floor[(left + right)/2]，也就是说，如果left + 1 = right
+*  left = mid = left死循环,所以mid = cell[(left + right)/2]可以避免死循环
+*  数组按升序排序
+*/
 int searchLast(vector<int> ls, int k)
 {
     if (ls.empty()) {
         return -1;
     }
     int left = 0, right = ls.size() - 1, mid;
-    while (left < right - 1) {
-        mid = left + ((right - left) >> 2);
+    while (left < right) {
+        mid = left + ((right - left + 1) >> 1);
         if (ls[mid] > k) {
             right = mid - 1;
-        } else {
+        }
+        else {
             left = mid;
         }
     }
-    if (ls[right] == k) {
-        return right;
-    }
-    if (ls[left] == k) {
-        return left;
-    }
-    return -1;
+    return ls[right] == k ? right : -1;
 }
 
 /**
- *  二分查找比K小最接近K的数索引,没有则输出-1,迭代
- *  数组按升序排序
- */
+*  二分查找比K小最接近K的数索引,没有则输出-1,迭代
+*  数组按升序排序
+*/
 int searchSmaller(vector<int> ls, int k)
 {
     if (ls.empty()) {
         return -1;
     }
     int left = 0, right = ls.size() - 1, mid;
-    while (left < right - 1) {
-        mid = left + ((right - left) >> 2);
+    while (left < right) {
+        mid = left + ((right - left + 1) >> 1);
         if (ls[mid] >= k) {
             right = mid - 1;
-        } else {
+        }
+        else {
             left = mid;
         }
     }
-    if (ls[right] < k) {
-        return right;
-    }
-    if (ls[left] < k) {
-        return left;
-    }
-    return -1;
+    return ls[right] < k ? right : -1;
 }
 
 /**
- *  二分查找比K大最近接K的索引,没有则输出-1,迭代
- *  数组按升序排序
- */
+*  二分查找比K大最近接K的索引,没有则输出-1,迭代
+*  数组按升序排序
+*/
 int searchBigger(vector<int> ls, int k)
 {
     if (ls.empty()) {
@@ -210,10 +205,11 @@ int searchBigger(vector<int> ls, int k)
     }
     int left = 0, right = ls.size() - 1, mid;
     while (left < right) {
-        mid = left + ((right - left) >> 2);
+        mid = left + ((right - left) >> 1);
         if (ls[mid] <= k) {
             left = mid + 1;
-        } else {
+        }
+        else {
             right = mid;
         }
     }
@@ -226,12 +222,12 @@ int searchBigger(vector<int> ls, int k)
  */
 int knapsack(vector<pair<int, int>> jewels, int cap)
 {
-    vector<int> dp(cap + 1, 0), tmp(cap + 1, 0);
+    vector<int> dp(cap + 1, 0), exdp(cap + 1, 0);
     for (int i = 1; i < jewels.size() + 1; ++i) {
-        tmp = dp;
+        exdp = dp;
         for (int j = 1; j < cap + 1; ++j) {
             if (jewels[i - 1].second <= j) {
-                dp[j] = max(tmp[j], jewels[i - 1].first + tmp[j - jewels[i - 1].second]);
+                dp[j] = max(exdp[j], jewels[i - 1].first + exdp[j - jewels[i - 1].second]);
             }
         }
     }
@@ -239,10 +235,42 @@ int knapsack(vector<pair<int, int>> jewels, int cap)
 }
 
 /**
- *  20个桶，每个桶中有10条鱼，用网从每个桶中抓鱼，每次可以抓住的条数随机，每个桶只能抓一次，问一共抓到180条的排列有多少种
+ *  从给定的N个正数中选取若干个数之和最接近M
+ *  0-1背包问题的变体
  */
-
+int closeSack(vector<int> ls, int cap)
+{
+   vector<int> dp(cap + 1, 0), exdp(cap + 1, 0);
+   for (int i = 1; i < ls.size() + 1; ++i) {
+       exdp = dp;
+       for (int j = 1; j < cap + 1; ++j) {
+           if (ls[i - 1] <= j) {
+               if (abs(exdp[j] - j) > abs(ls[i - 1] + exdp[j - ls[i - 1]] - j)) {
+                   dp[j] = ls[i - 1] + exdp[j - ls[i - 1]];
+               }
+           }
+           else if (abs(exdp[j] - j) > abs(ls[i - 1] - j)) {
+               dp[j] = ls[i - 1];
+           }
+       }
+   }
+   return dp[cap];
+}
 
 /**
- *  从给定的N个正数中选取若干个数之和最接近M
+ *  20个桶，每个桶中有10条鱼，用网从每个桶中抓鱼，每次可以抓住的条数随机，每个桶只能抓一次，问一共抓到180条的排列有多少种
+ *  只有分解到0个桶0条鱼才为合法，所以dp[0][0] = 1;
  */
+int fishWays(int cans, int fish)
+{
+    vector<vector<int>> dp(cans + 1, vector<int>(fish + 1, 0));
+    dp[0][0] = 1;
+    for (int i = 1; i < cans + 1; ++i) {
+        for (int j = 0; j < fish + 1; ++j) {
+            for (int k = 0; k <= j && k <= 10; ++k) {
+                dp[i][j] += dp[i - 1][j - k];
+            }
+        }
+    }
+    return dp[cans][fish];
+}
