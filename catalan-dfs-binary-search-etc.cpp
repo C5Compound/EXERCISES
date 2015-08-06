@@ -176,13 +176,13 @@ int searchLast(vector<int> ls, int k)
  *  二分查找比K小最接近K的数索引,没有则输出-1,迭代
  *  数组按升序排序
  */
-int binarySearch4(vector<int> ls, int k)
+int searchSmaller(vector<int> ls, int k)
 {
     if (ls.empty()) {
         return -1;
     }
     int left = 0, right = ls.size() - 1, mid;
-    while (left < right) {
+    while (left < right - 1) {
         mid = left + ((right - left) >> 2);
         if (ls[mid] >= k) {
             right = mid - 1;
@@ -190,14 +190,20 @@ int binarySearch4(vector<int> ls, int k)
             left = mid;
         }
     }
-    return ls[right] < k ? right : -1;
+    if (ls[right] < k) {
+        return right;
+    }
+    if (ls[left] < k) {
+        return left;
+    }
+    return -1;
 }
 
 /**
  *  二分查找比K大最近接K的索引,没有则输出-1,迭代
  *  数组按升序排序
  */
-int binarySearch5(vector<int> ls, int k)
+int searchBigger(vector<int> ls, int k)
 {
     if (ls.empty()) {
         return -1;
@@ -213,3 +219,12 @@ int binarySearch5(vector<int> ls, int k)
     }
     return ls[left] > k ? left : -1;
 }
+
+/**
+ *  20个桶，每个桶中有10条鱼，用网从每个桶中抓鱼，每次可以抓住的条数随机，每个桶只能抓一次，问一共抓到180条的排列有多少种
+ */
+
+
+/**
+ *  从给定的N个正数中选取若干个数之和最接近M
+ */
