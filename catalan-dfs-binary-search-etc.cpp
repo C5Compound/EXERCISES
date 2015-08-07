@@ -285,23 +285,25 @@ int fishWays(int cans, int fish)
  */
 unsigned int noDupNumber(unsigned int x)
 {
-    unsigned int _x = ++x, r = 1, c, k;
+    unsigned int _x = ++x, r = 1, k, c;
     while (_x > 0) {
-        r *= 10;
-        _x /= 10;
-    }
-    while (r > 1) {
-        if ((x / r) % 10 == ((x * 10) / r) % 10) {
-            k = (x / r) % 10 == 9 ? r * 10 : r / 10;
+        if (_x % 10 == (_x / 10) % 10) {
+            // 相同的数为9和相同的数不为9的情况
+            if (_x % 10 == 9) {
+                k = r * 100;
+                r *= 10;
+            } else {
+                k = r;
+            }
             x -= x % k;
             c = 0;
             while (k > 0) {
                 x += k * (++c % 2);
                 k /= 10;
             }
-            break;
         }
-        r /= 10;
+        r *= 10;
+        _x  = x / r;
     }
     return x;
 }
