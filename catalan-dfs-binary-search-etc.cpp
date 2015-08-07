@@ -4,6 +4,7 @@
  *  3.绳子覆盖端点
  *  4.IP字符串转int
  *  5.各类二分搜索
+ *  6.不重复数
  */
 
 /**
@@ -273,4 +274,34 @@ int fishWays(int cans, int fish)
         }
     }
     return dp[cans][fish];
+}
+
+
+/**
+ *  不重复数：转化为10进制后相邻的两位不相同，称为不重复数
+ *  函数接收一个非负数作参数，返回大于它的最小不重复数
+ *  从高位向下扫描，碰到相等的位，如果为9，将前前位加一，后面置为010101...
+ *  如果不为9，将后位加一，后面置为010101...，然后break
+ */
+unsigned int noDupNumber(unsigned int x)
+{
+    unsigned int _x = ++x, r = 1, c, k;
+    while (_x > 0) {
+        r *= 10;
+        _x /= 10;
+    }
+    while (r > 1) {
+        if ((x / r) % 10 == ((x * 10) / r) % 10) {
+            k = (x / r) % 10 == 9 ? r * 10 : r / 10;
+            x -= x % k;
+            c = 0;
+            while (k > 0) {
+                x += k * (++c % 2);
+                k /= 10;
+            }
+            break;
+        }
+        r /= 10;
+    }
+    return x;
 }
