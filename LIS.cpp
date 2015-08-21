@@ -15,14 +15,14 @@ int LIS1(vector<int> &nums)
                 dp[i] = max(dp[i], dp[j] + 1);
             }
         }
-        maxlen = max(maxlen, i);
+        maxlen = max(maxlen, dp[i]);
     }
     return maxlen;
 }
 
 
 // O(N^2)算法
-int LST2(vector<int> &nums)
+int LIS2(vector<int> &nums)
 {
     // lenMinVal数组保存的是长度为len的序列最小终点
     vector<int> lenMinVal(nums.size() + 1, 1), dp(nums.size(), 1);
@@ -37,7 +37,8 @@ int LST2(vector<int> &nums)
         if (dp[i] > maxlen) {
             lenMinVal[dp[i]] = nums[i];
             maxlen = dp[i];
-        } else {
+        }
+        else {
             lenMinVal[dp[i]] = min(nums[i], lenMinVal[dp[i]]);
         }
     }
@@ -52,26 +53,30 @@ int lowerbound(vector<int> arr, int k)
         mid = left + ((right - left + 1) >> 1);
         if (arr[mid] >= k) {
             right = mid - 1;
-        } else {
+        }
+        else {
             left = mid;
         }
     }
-    return arr[left] < k ? left : -1;
+    return arr[right] < k ? right : -1;
 }
 
-// O(NlgN)算法
-int LST3(vector<int> &nums)
+// O(NlogN)算法
+int LIS3(vector<int> &nums)
 {
     // lenMinVal数组保存的是长度为len的序列最小终点
     vector<int> lenMinVal(nums.size() + 1, 1), dp(nums.size(), 1);
     int maxlen = 1;
     for (int i = 1; i < nums.size(); ++i) {
         // 二分查找len长度的最小终点刚好小于nums[i]
-        lowerbound(vector<int>(lenMinVal[1], lenMinVal[maxlen]), nums[i]);
+        // 返回的合法索引应该加上1,不合法则dp[i] = 1
+        // 综合两种情况dp[i] = j + 2
+        dp[i] = lowerbound(vector<int>(lenMinVal.begin() + 1, lenMinVal.begin() + maxlen + 1), nums[i]) + 2;
         if (dp[i] > maxlen) {
             lenMinVal[dp[i]] = nums[i];
             maxlen = dp[i];
-        } else {
+        }
+        else {
             lenMinVal[dp[i]] = min(nums[i], lenMinVal[dp[i]]);
         }
     }
