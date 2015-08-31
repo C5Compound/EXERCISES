@@ -1,6 +1,6 @@
 /**
  *  分治法求二维平面最近点对距离
- *  没有实现算法导论提及的备份方法
+ *  没有实现算法导论提及的部分方法
  */
 struct Point
 {
@@ -125,6 +125,6 @@ double rotateConvex(vector<Point> hull)
         }
         diameter = max(max(D(hull[i], hull[scan_pos]), D(hull[i + 1], hull[scan_pos])), diameter);
     }
-    // 最大直径可以通过面积/底来求出
+    // 最大直径
     return diameter;
 }
