@@ -1,7 +1,6 @@
 /**
  *  瓷砖覆盖问题，用1X2的瓷砖覆盖M X N的地面，有多少种方法
  *  状态压缩动态规划
- *  参考自http://blog.csdn.net/hopeztm/article/details/7841917
  */
 bool isFirstLintOK(int i, int cols)
 {
