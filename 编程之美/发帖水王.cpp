@@ -52,7 +52,7 @@ void findHighFrequencyNum(vector<int> ls)
 
 /**
  *  寻找数组中的K个数，其出现频率均超过1/(K+1)
- 每次取一组K+1个数，不同则删除
+ *  每次取一组K+1个数，不同则删除
  */
 void findHighFrequencyNum(vector<int> ls, int K)
 {
