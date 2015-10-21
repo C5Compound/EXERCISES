@@ -1,14 +1,11 @@
 /**
  *  单例模式C++实现
- *  带双检锁,C++11
  */
+
+std::mutex mtx;
 
 class Singleton
 {
-private:
-    Singleton() {}
-    static std::mutex mtx;
-    static Singleton *it;
 public:
     static Singleton* getIt() {
         if (it == NULL) {
@@ -19,9 +16,35 @@ public:
         }
         return it;
     }
-    static void releaseIt() {
-        delete it;
-    }
+    class Inside
+    {
+    public:
+        ~Inside() {
+            if (it != NULL) {
+                delete it;
+            }
+        }
+    };
+private:
+    Singleton() {}
+    static Singleton *it;
+    static Inside fordelete;
 };
 
 Singleton* Singleton::it = NULL;
+
+/**
+ *  C++11静态变量,部分编译器支持
+ *  Visual Studio 2013 does not yet support it
+ */
+ 
+class Singleton
+{
+private:
+    Singleton() {}
+public:
+    Singleton& getIt() {
+        static Singleton instance;
+        return instance;
+    }
+};
